@@ -1,0 +1,46 @@
+[
+  {
+    "id": "qualified-call-001",
+    "number": "+13155550001",
+    "createdAt": "2025-10-09T23:37:55.276Z",
+    "intent": true,
+    "priceRange": "$300,000",
+    "timeline": "3 months",
+    "condition": null,
+    "notes": "Homeowner is open to selling",
+    "rawSummary": "The homeowner is open to selling in 3 months for around $300,000."
+  },
+  {
+    "id": "qualified-call-002",
+    "number": "+13155550002",
+    "createdAt": "2025-10-09T23:38:04.560Z",
+    "intent": true,
+    "priceRange": "$180,000",
+    "timeline": "immediate",
+    "condition": "good shape",
+    "notes": "Homeowner wants to sell immediately.",
+    "rawSummary": "The homeowner wants to sell immediately for at least $180,000. Home is in good shape."
+  },
+  {
+    "id": "test-call-future-sale-005",
+    "number": "+13155559999",
+    "createdAt": "2025-10-09T23:58:46.216Z",
+    "intent": true,
+    "priceRange": "$450,000",
+    "timeline": "next summer",
+    "condition": null,
+    "notes": "Homeowner is planning to sell their rental property.",
+    "rawSummary": "The homeowner is planning to sell their rental property by next summer and is expecting around $450,000."
+  },
+  {
+    "id": "0199ce43-c8b3-7992-ac9a-fde2ecf48e66",
+    "number": "+13159523471",
+    "createdAt": "2025-10-10T13:17:48.662Z",
+    "intent": true,
+    "priceRange": "40000 dollars",
+    "timeline": "6 months",
+    "condition": "good condition",
+    "notes": "Homeowner is interested in selling and open to cash offers.",
+    "rawSummary": "The call was initiated by Moblika Eye to a homeowner who confirmed their interest in selling their property. The homeowner indicated a desired price of $40,000, a 6-month timeline for selling, and stated the home is in good condition. They also expressed openness to receiving a cash offer from an investor."
+  }
+]

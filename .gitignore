@@ -1,0 +1,5 @@
+node_modules
+.history
+logs
+.env
+dashboard-frontend/node_modules

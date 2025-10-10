@@ -1,0 +1,35 @@
+[
+  {
+    "id": "unqualified-call-001",
+    "number": "+13155550003",
+    "createdAt": "2025-10-09T23:38:11.869Z",
+    "intent": false,
+    "priceRange": null,
+    "timeline": null,
+    "condition": null,
+    "notes": "Homeowner is not interested in selling and requested not to be contacted again.",
+    "rawSummary": "The homeowner is not interested in selling and requested not to be contacted again."
+  },
+  {
+    "id": "unqualified-call-002",
+    "number": "+13155550004",
+    "createdAt": "2025-10-09T23:38:27.080Z",
+    "intent": false,
+    "priceRange": null,
+    "timeline": null,
+    "condition": null,
+    "notes": "Homeowner is not thinking about selling, just exploring.",
+    "rawSummary": "The homeowner said they’re not thinking about selling right now, just exploring."
+  },
+  {
+    "id": "0199ce80-0d13-7333-88f5-f519ad11e179",
+    "number": "+13159523471",
+    "createdAt": "2025-10-10T14:23:06.133Z",
+    "intent": false,
+    "priceRange": null,
+    "timeline": null,
+    "condition": null,
+    "notes": "Homeowner confirmed they do not wish to sell.",
+    "rawSummary": "Oblique.ai called the homeowner to inquire about their interest in selling their property to investors. The homeowner confirmed they are the sole owner but stated they do not wish to sell. The AI agent then politely ended the call."
+  }
+]
