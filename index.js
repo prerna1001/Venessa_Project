@@ -103,7 +103,7 @@ Output example: ["+13159523471", "+15551234567"]
     }
   } catch (err) {
     console.error("OpenAI error:", err.message);
-    res.status(500).json({ error: "Failed to extract numbers" });
+    res.status(500).json({ error: "Failed to extract numbers", err });
   }
 });
 
