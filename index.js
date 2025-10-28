@@ -28,15 +28,25 @@ app.post("/upload-excel", upload.single("file"), async (req, res) => {
   
  const prompt = `
 You are a smart parser.
-Given the following spreadsheet data:
+
+Below is spreadsheet data converted to CSV format:
 ---
 ${csvData}
 ---
-Extract all valid U.S. phone numbers and return a JSON array in E.164 format, like:
-["+13159523471", "+15559876543"]
-Always add the +1 country code if it's missing.
-Only return the JSON array. No extra commentary.
+
+Your task is to extract only valid US phone numbers from the **second column**, starting from **row 2 onward** (skip the header row).
+
+Clean the phone numbers and convert them to strict E.164 format (like: "+13159523471").
+
+- If a number is in the format "(555) 123-4567" or "315-952-3471", normalize it.
+- If the number is 10 digits long without a country code, prepend +1.
+- If the number is malformed or too short/long, skip it.
+
+Return only a **JSON array** of valid numbers. No commentary or explanation.
+
+Output example: ["+13159523471", "+15551234567"]
 `;
+
 
 
 
