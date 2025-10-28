@@ -2,4 +2,11 @@ node_modules
 .history
 logs
 .env
+<<<<<<< HEAD
 dashboard-frontend/node_modules
+=======
+dashboard-frontend/node_modulesnode_modules/
+.env
+uploads/
+logs/
+>>>>>>> e0bd3ca (Initial commit - Vanessa Voice AI prototype)
