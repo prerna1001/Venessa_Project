@@ -24,8 +24,8 @@ const LeadsDashboard = () => {
   const fetchLeads = async () => {
     try {
       const [qualifiedRes, unqualifiedRes] = await Promise.all([
-        axios.get("http://localhost:3000/leads/qualified"),
-        axios.get("http://localhost:3000/leads/unqualified"),
+        axios.get("https://venessa-project-2.onrender.com/leads/qualified"),
+        axios.get("https://venessa-project-2.onrender.com/leads/unqualified"),
       ]);
       setQualified(qualifiedRes.data);
       setUnqualified(unqualifiedRes.data);
