@@ -56,7 +56,7 @@ const LeadsDashboard = () => {
     try {
       setIsUploading(true);
       setUploadMessage("Uploading and processing...");
-      const res = await axios.post("http://localhost:3000/upload-excel", formData, {
+       const res = await axios.post("https://venessa-project-2.onrender.com/upload-excel", formData, {
         onUploadProgress: (progressEvent) => {
           const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           setUploadProgress(percent);
