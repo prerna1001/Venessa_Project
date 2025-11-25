@@ -13,6 +13,89 @@ app.use(cors());
 
 const upload = multer({ dest: "uploads/" });
 const callStatus = {}; // Track number -> {status, summary, callId}
+const CALL_CONCURRENCY = Math.max(parseInt(process.env.CALL_CONCURRENCY || "100", 10), 1);
+const MAX_RETRIES = Math.max(parseInt(process.env.CALL_MAX_RETRIES || "3", 10), 0);
+const CALL_RATE_PER_SEC = Math.max(parseInt(process.env.CALL_RATE_PER_SEC || "20", 10), 1); // Vapi-friendly creation rate
+
+// Simple token-bucket style rate limiter for Vapi call creation
+let callTokens = CALL_RATE_PER_SEC;
+const callWaiters = [];
+function flushCallWaiters() {
+  while (callTokens > 0 && callWaiters.length > 0) {
+    callTokens--;
+    const resolve = callWaiters.shift();
+    resolve();
+  }
+}
+setInterval(() => {
+  callTokens = CALL_RATE_PER_SEC;
+  flushCallWaiters();
+}, 1000);
+async function acquireCallToken() {
+  if (callTokens > 0) {
+    callTokens--;
+    return;
+  }
+  return new Promise((resolve) => callWaiters.push(resolve));
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function callVapi(number) {
+  // Respect Vapi rate limits
+  await acquireCallToken();
+  const vapiResp = await axios.post(
+    "https://api.vapi.ai/call",
+    {
+      assistantId: process.env.AGENT_ID,
+      phoneNumberId: process.env.PHONE_NUMBER_ID,
+      customer: { number }
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.VAPI_API_KEY}`,
+        "Content-Type": "application/json"
+      }
+    }
+  );
+  return vapiResp.data.id;
+}
+
+async function callVapiWithRetry(number) {
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await callVapi(number);
+    } catch (err) {
+      const status = err?.response?.status;
+      const retriable = status === 429 || (status >= 500 && status < 600);
+      if (attempt < MAX_RETRIES && retriable) {
+        const backoff = Math.min(1000 * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 250);
+        await sleep(backoff);
+        continue;
+      }
+      throw err;
+    }
+  }
+}
+
+async function runPool(items, limit, worker) {
+  const results = new Array(items.length);
+  let index = 0;
+
+  const workers = new Array(Math.min(limit, items.length)).fill(0).map(async () => {
+    while (true) {
+      const current = index++;
+      if (current >= items.length) break;
+      const item = items[current];
+      results[current] = await worker(item, current);
+    }
+  });
+
+  await Promise.all(workers);
+  return results;
+}
 
 // ========== Upload Excel and trigger calls ==========
 
@@ -77,30 +160,20 @@ Output example: ["+13159523471", "+15551234567"]
     console.log("Extracted numbers:", numbers);
     res.json({ message: "Calls starting", numbers });
 
-    // Sequential call loop
-    for (const number of numbers) {
+    // Concurrent call dispatch with a configurable pool size
+    runPool(numbers, CALL_CONCURRENCY, async (number) => {
       callStatus[number] = { status: "Calling" };
       try {
-        const vapiResp = await axios.post(
-          "https://api.vapi.ai/call",
-          {
-            assistantId: process.env.AGENT_ID,
-            phoneNumberId: process.env.PHONE_NUMBER_ID,
-            customer: { number }
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${process.env.VAPI_API_KEY}`,
-              "Content-Type": "application/json"
-            }
-          }
-        );
-        const callId = vapiResp.data.id;
+        const callId = await callVapiWithRetry(number);
         callStatus[number] = { status: "In Progress", callId };
+        return { number, callId };
       } catch (err) {
         callStatus[number] = { status: "Failed", error: err.message };
+        return { number, error: err.message };
       }
-    }
+    })
+      .then(() => console.log(`Dispatched ${numbers.length} calls with concurrency ${CALL_CONCURRENCY}`))
+      .catch((e) => console.error("Call dispatch error:", e.message));
   } catch (err) {
     console.error("OpenAI error:", err.message);
     res.status(500).json({ error: "Failed to extract numbers", err });
@@ -165,7 +238,13 @@ app.post("/webhook", async (req, res) => {
   const msg = req.body.message;
 
   const filename = `vapi-webhook-${Date.now()}.json`;
-  fs.writeFileSync(path.join(__dirname, "logs", filename), JSON.stringify(req.body, null, 2));
+  const logsDir = path.join(__dirname, "logs");
+  try {
+    if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
+    fs.writeFileSync(path.join(logsDir, filename), JSON.stringify(req.body, null, 2));
+  } catch (e) {
+    console.error("Failed to write webhook log:", e.message);
+  }
 
   if (!msg || msg.type !== "end-of-call-report") {
     return res.status(200).send("ignored");

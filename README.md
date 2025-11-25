@@ -1,11 +1,5 @@
 # Vanessa – Voice AI Acquisitions Assistant  
 
-**Live Demo**: [https://venessa-project-frontend.onrender.com]
-
-Vanessa is a fully deployed voice AI system that automates outbound real estate lead qualification.
-
----
-
 ## Key Features  
 - **Auto-calls homeowners** using the [Vapi.ai](https://www.vapi.ai/) voice assistant API  
 - **Converses** with them to determine:
