@@ -1,5 +1,12 @@
 # Vanessa – Voice AI Acquisitions Assistant  
 
+---
+
+## 🚀 Live Demo
+- **Frontend:** [https://venessa-project-frontend.onrender.com/](https://venessa-project-frontend.onrender.com/)
+
+---
+
 ## Key Features  
 - **Auto-calls homeowners** using the [Vapi.ai](https://www.vapi.ai/) voice assistant API  
 - **Converses** with them to determine:
@@ -52,3 +59,10 @@
 | AI         | Vapi.ai (voice assistant), OpenAI GPT  |
 | Hosting    | Render (frontend + backend)            |
 | Format     | JSON for lead storage, E.164 phone format |
+
+---
+
+## ⚠️ Current Status & Limitations
+- **OpenAI API credits exhausted:** Some features (Excel upload, AI-powered phone number extraction) may not work until credits are restored.
+- **Frontend is live and functional:** See the link above.
+- **Backend is ready for deployment:** Deploy on Render for full functionality.
