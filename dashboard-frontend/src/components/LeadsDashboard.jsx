@@ -10,6 +10,8 @@ import {
   FaTimesCircle,
   FaHome,
   FaUpload,
+  FaCheck,
+  FaTimes
 } from "react-icons/fa";
 
 const LeadsDashboard = () => {
@@ -20,6 +22,13 @@ const LeadsDashboard = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  // Single call form state
+  const [showSingleCall, setShowSingleCall] = useState(false);
+  const [singleCallName, setSingleCallName] = useState("");
+  const [singleCallPurpose, setSingleCallPurpose] = useState("");
+  const [singleCallNumber, setSingleCallNumber] = useState("");
+  const [singleCallStatus, setSingleCallStatus] = useState("");
+  const [singleCallLoading, setSingleCallLoading] = useState(false);
 
   const fetchLeads = async () => {
     try {
@@ -62,12 +71,12 @@ const LeadsDashboard = () => {
           setUploadProgress(percent);
         },
       });
-      setUploadMessage(`✅ Started calls to ${res.data.numbers.length} numbers.`);
+      setUploadMessage(<span><FaCheck style={{color:'#28a745'}} /> Started calls to {res.data.numbers.length} numbers.</span>);
       fetchLeads();
       setShowModal(false);
     } catch (err) {
       console.error("Upload failed:", err.message);
-      setUploadMessage("❌ Failed to upload/process the file.");
+      setUploadMessage(<span><FaTimes style={{color:'#dc3545'}} /> Failed to upload/process the file.</span>);
     } finally {
       setIsUploading(false);
     }
@@ -79,23 +88,129 @@ const LeadsDashboard = () => {
         <span style={{ color: "#007bff" }}>Vanessa AI</span> – Lead Dashboard
       </h1>
 
-      {/* Modal-style Upload Trigger */}
-      <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+      {/* Disclaimer Banner */}
+      <div style={{
+        background: "linear-gradient(90deg, #ffecd2 0%, #fcb69f 100%)",
+        color: "#222",
+        borderRadius: "8px",
+        padding: "1rem 2rem",
+        margin: "0 auto 2rem auto",
+        maxWidth: "600px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+        fontSize: "1.05rem",
+        textAlign: "center",
+        border: "1px solid #fcb69f"
+      }}>
+        <strong>Disclaimer:</strong> The features of this project were tested and verified while OpenAI API credits were available.<br />
+        <span style={{ color: '#c0392b', fontWeight: 'bold' }}>Due to exhaustion of free OpenAI credits, some functionalities (Excel upload, AI-powered phone number extraction) cannot be tested further at this time.</span>
+      </div>
+
+      {/* Upload Excel & Single Call Tabs */}
+      <div style={{ textAlign: "center", marginBottom: "2rem", display: "flex", justifyContent: "center", gap: "1rem" }}>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => { setShowModal(true); setShowSingleCall(false); }}
           style={{
             padding: "0.75rem 1.5rem",
-            backgroundColor: "#007bff",
+            backgroundColor: showModal ? "#0056b3" : "#007bff",
             color: "#fff",
             border: "none",
             borderRadius: "6px",
             cursor: "pointer",
             fontSize: "1rem",
+            fontWeight: showModal ? "bold" : "normal"
           }}
         >
           Upload Excel File
         </button>
+        <button
+          onClick={() => { setShowSingleCall(true); setShowModal(false); }}
+          style={{
+            padding: "0.75rem 1.5rem",
+            backgroundColor: showSingleCall ? "#0056b3" : "#007bff",
+            color: "#fff",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontSize: "1rem",
+            fontWeight: showSingleCall ? "bold" : "normal"
+          }}
+        >
+          Place Single Call
+        </button>
       </div>
+      {/* Single Call Modal */}
+      {showSingleCall && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000,
+        }}>
+          <div style={{ background: "#fff", padding: "2rem", borderRadius: "10px", width: "400px" }}>
+            <h2 style={{ marginBottom: "1rem", textAlign: "center" }}>Place Single Call</h2>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              setSingleCallStatus("");
+              setSingleCallLoading(true);
+              try {
+                const res = await axios.post("https://venessa-project-2.onrender.com/single-call", {
+                  name: singleCallName,
+                  purpose: singleCallPurpose,
+                  number: singleCallNumber
+                });
+                setSingleCallStatus(<span><FaCheck style={{color:'#28a745'}} /> Call placed for {singleCallName} ({singleCallNumber})</span>);
+                setSingleCallName("");
+                setSingleCallPurpose("");
+                setSingleCallNumber("");
+              } catch (err) {
+                setSingleCallStatus(<span><FaTimes style={{color:'#dc3545'}} /> Failed to place call.</span>);
+              } finally {
+                setSingleCallLoading(false);
+              }
+            }}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label>Name:</label><br />
+                <input type="text" value={singleCallName} onChange={e => setSingleCallName(e.target.value)} required style={{ width: "100%", padding: "0.5rem" }} />
+              </div>
+              <div style={{ marginBottom: "1rem" }}>
+                <label>Purpose of Visit:</label><br />
+                <input type="text" value={singleCallPurpose} onChange={e => setSingleCallPurpose(e.target.value)} required style={{ width: "100%", padding: "0.5rem" }} />
+              </div>
+              <div style={{ marginBottom: "1rem" }}>
+                <label>Phone Number:</label><br />
+                <input type="tel" value={singleCallNumber} onChange={e => setSingleCallNumber(e.target.value)} required style={{ width: "100%", padding: "0.5rem" }} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <button type="submit" disabled={singleCallLoading} style={{
+                  padding: "0.5rem 1rem",
+                  backgroundColor: "#007bff",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}>Place Call</button>
+                <button type="button" onClick={() => setShowSingleCall(false)} style={{
+                  padding: "0.5rem 1rem",
+                  backgroundColor: "#ccc",
+                  color: "#000",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}>Cancel</button>
+              </div>
+              {singleCallStatus && (
+                <p style={{ marginTop: "1rem" }}>{singleCallStatus}</p>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div style={{
@@ -140,7 +255,7 @@ const LeadsDashboard = () => {
             )}
 
             {uploadMessage && (
-              <p style={{ marginTop: "1rem", color: uploadMessage.includes("❌") ? "#dc3545" : "#28a745" }}>
+              <p style={{ marginTop: "1rem" }}>
                 {uploadMessage}
               </p>
             )}
