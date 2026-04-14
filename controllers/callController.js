@@ -100,8 +100,11 @@ Output example: ["+13159523471", "+15551234567"]
       .then(() => console.log(`Dispatched ${numbers.length} calls with concurrency ${CALL_CONCURRENCY}`))
       .catch((e) => console.error("Call dispatch error:", e.message));
   } catch (err) {
+    if (err.response && err.response.data) {
+      console.error("$ [uploadExcel] Claude error response:", JSON.stringify(err.response.data));
+    }
     console.error("Claude error:", err.message);
-    res.status(500).json({ error: "Failed to extract numbers", err });
+    res.status(500).json({ error: "Failed to extract numbers", err: err.message, details: err.response && err.response.data });
   }
 };
 
