@@ -28,6 +28,13 @@ async function acquireCallToken() {
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+//So async means the system does not block while waiting for a response. For example, if one call is in progress and waiting for a response, the thread is freed up to handle other tasks instead of sitting idle.
+
+// Synchronous is the opposite, where the system waits for each task to complete before moving to the next, so the thread remains blocked.
+
+//Concurrency means handling multiple tasks at the same time, either by switching between them efficiently using async or by using multiple threads.
+
+//So in my system, I used asynchronous handling for webhook events so that multiple calls can be processed without blocking the server.
 
 async function callVapi(number) {
   await acquireCallToken();

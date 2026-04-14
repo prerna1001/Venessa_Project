@@ -30,25 +30,30 @@ Only valid JSON, no commentary.
   `;
 
   const response = await axios.post(
-    "https://api.openai.com/v1/chat/completions",
+    "https://api.anthropic.com/v1/messages",
     {
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.2
+      model: "claude-3-opus-20240229",
+      max_tokens: 1024,
+      temperature: 0.2,
+      messages: [
+        { "role": "user", "content": prompt }
+      ]
     },
     {
       headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json"
       }
     }
   );
 
-  const raw = response.data.choices[0].message.content.trim();
+  // Claude's response format: response.data.content[0].text
+  const raw = response.data.content[0].text.trim();
   try {
     return JSON.parse(raw);
   } catch (e) {
-    console.error("JSON parse error from OpenAI:", raw);
+    console.error("JSON parse error from Claude:", raw);
     return {
       intent: false,
       priceRange: null,

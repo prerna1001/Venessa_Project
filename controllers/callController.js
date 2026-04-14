@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const XLSX = require('xlsx');
 const { callVapiWithRetry, runPool } = require('../utils/vapiUtils');
-
+const CALL_CONCURRENCY = 5
 // In-memory call status
 const callStatus = {};
 
