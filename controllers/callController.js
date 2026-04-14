@@ -51,22 +51,30 @@ Output example: ["+13159523471", "+15551234567"]
 `;
 
   try {
-    const gptResp = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
+    // Use Claude (Anthropic) API instead of OpenAI
+    const claudeResp = await axios.post(
+      "https://api.anthropic.com/v1/messages",
       {
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.2
+        model: "claude-3-opus-20240229",
+        max_tokens: 1024,
+        temperature: 0.2,
+        messages: [
+          { role: "user", content: prompt }
+        ]
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          "Content-Type": "application/json"
+          "x-api-key": process.env.ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json"
         }
       }
     );
 
-    const content = gptResp.data.choices[0].message.content.trim();
+    // Log the full Claude response for debugging
+    console.log("$ [uploadExcel] Claude API response:", JSON.stringify(claudeResp.data));
+
+    const content = claudeResp.data.content[0].text.trim();
     let numbers;
     try {
       numbers = JSON.parse(content);
@@ -92,7 +100,7 @@ Output example: ["+13159523471", "+15551234567"]
       .then(() => console.log(`Dispatched ${numbers.length} calls with concurrency ${CALL_CONCURRENCY}`))
       .catch((e) => console.error("Call dispatch error:", e.message));
   } catch (err) {
-    console.error("OpenAI error:", err.message);
+    console.error("Claude error:", err.message);
     res.status(500).json({ error: "Failed to extract numbers", err });
   }
 };
