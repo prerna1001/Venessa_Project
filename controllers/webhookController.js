@@ -52,8 +52,8 @@ Only valid JSON, no commentary.
     }
   );
 
-  // Step 3: Parse Claude response
-  console.log("[extractFieldsFromSummary] Received response from Claude");
+  // Step 3: Log and parse Claude response
+  console.log("$ [extractFieldsFromSummary] Claude API response:", JSON.stringify(response.data));
   const raw = response.data.content[0].text.trim();
   try {
     const parsed = JSON.parse(raw);
@@ -73,7 +73,12 @@ Only valid JSON, no commentary.
 
 exports.handleWebhook = async (req, res) => {
   // Step 1: Log webhook received
-  console.log("[handleWebhook] Webhook received:", JSON.stringify(req.body));
+  console.log("$ [handleWebhook] Full webhook payload:", JSON.stringify(req.body));
+  if (req.body && req.body.message && req.body.message.analysis && req.body.message.analysis.summary) {
+    console.log("$ [handleWebhook] Vapi summary:", req.body.message.analysis.summary);
+  } else {
+    console.log("$ [handleWebhook] No summary found in webhook payload.");
+  }
   const msg = req.body.message;
   const filename = `vapi-webhook-${Date.now()}.json`;
   const logsDir = path.join(__dirname, '../logs');
